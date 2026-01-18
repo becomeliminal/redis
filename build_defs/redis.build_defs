@@ -124,7 +124,7 @@ def redis_stack(name:str, version:str, os=None, arch=None, libc:str='glibc', dow
         )
 
 
-def redis_binary(name:str, version:str, hashes:list=[], visibility:list=[]):
+def redis_binary(name:str, version:str, libc:str="musl", hashes:list=[], visibility:list=[]):
     """
     Downloads pre-built Redis binaries from GitHub releases.
     Much faster than building from source - just downloads the tarball.
@@ -132,10 +132,18 @@ def redis_binary(name:str, version:str, hashes:list=[], visibility:list=[]):
     Args:
         name: Name of the rule
         version: Redis version (e.g. "7.4.2")
+        libc: C library variant ('musl' or 'glibc'). Defaults to 'musl' which produces
+              statically-linked binaries that work in hermetic environments like RBE.
+              Use 'glibc' for dynamically-linked binaries if you need TLS support.
         hashes: Optional hashes for verification
         visibility: Visibility declaration
     """
-    target = "linux_x86_64"
+    if libc == "musl":
+        target = "linux_x86_64-musl"
+    elif libc == "glibc":
+        target = "linux_x86_64"
+    else:
+        fail(f"Unknown libc '{libc}', must be 'musl' or 'glibc'")
 
     tarball = remote_file(
         name = tag(name, "tarball"),
