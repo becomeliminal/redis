@@ -122,3 +122,34 @@ def redis_stack(name:str, version:str, os=None, arch=None, libc:str='glibc', dow
             binary=True,
             visibility=visibility,
         )
+
+
+def redis_binary(name:str, version:str, hashes:list=[], visibility:list=[]):
+    """
+    Downloads pre-built Redis binaries from GitHub releases.
+    Much faster than building from source - just downloads the tarball.
+
+    Args:
+        name: Name of the rule
+        version: Redis version (e.g. "7.4.2")
+        hashes: Optional hashes for verification
+        visibility: Visibility declaration
+    """
+    target = "linux_x86_64"
+
+    tarball = remote_file(
+        name = tag(name, "tarball"),
+        url = f"https://github.com/becomeliminal/redis/releases/download/v0.0.3/redis-{version}-{target}.tar.gz",
+        hashes = hashes,
+    )
+
+    return build_rule(
+        name = name,
+        srcs = [tarball],
+        outs = {
+            "bin": ["redis/bin"],
+        },
+        cmd = "mkdir -p redis/bin && tar -xzf $SRC -C redis/bin --strip-components=1",
+        binary = True,
+        visibility = visibility,
+    )
