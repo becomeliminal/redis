@@ -149,7 +149,7 @@ def redis_binary(name:str, version:str, hashes:list=[], visibility:list=[]):
         outs = {
             "bin": ["redis/bin"],
         },
-        cmd = "mkdir -p redis/bin && tar -xzf $SRC -C redis/bin --strip-components=1",
+        cmd = "mkdir -p redis/bin && tar -xzf $SRC -C redis/bin",
         binary = True,
         visibility = visibility,
     )
